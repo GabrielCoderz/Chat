@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Chat</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body id="body">
+    
+    <form id="chat" class="form-group">
+        <h2 class="titulo">Chat Online v1.0.0</h2>
+        <input type="text" name="username" placeholder="Digite seu Nome">
+        <div class="messages"></div>
+        <input type="text" name="message" placeholder="Digite sua mensagem">
+        <div class="espace"></div>
+        <button type="submit">Enviar</button>
+        
+    </form>
+    <button class="opcao" onclick="mudarFundo()">Mudar Fundo</button>
+    
+  
+
+<script type="text/javascript">
+    var socket = io('http://testandonode-com.umbler.net/')
+
+    function renderMessage(message){
+        $('.messages').append('<div class="message" id="cor"><strong>'+ message.author +': </strong>'+ message.message +'</div>')
+    }
+
+    // Ouvir mensagem para todos os sockets
+    socket.on('receivedMessage', function(message){
+        renderMessage(message);
+    })
+
+    // Ouvir mensagens anteriores escritas
+    socket.on('previousMessage', function(messages){
+        for(message of messages){
+        renderMessage(message);
+        }
+    })
+
+    // Config Button Submit with Jquery and socket.io
+    $('#chat').submit(function(event){
+        event.preventDefault();
+
+        var author = $('input[name=username]').val();
+        var message = $('input[name=message]').val();
+
+        if (author.length && message.length){
+            var messageObject = {
+                author: author,
+                message: message,
+            }
+
+            renderMessage(messageObject)
+            
+            socket.emit('sendMessage',messageObject);
+
+        }
+
+    })
+
+    // Eventos Javascript
+    function mudarFundo(){
+        var cor = document.getElementById('body')
+        cor.style.background = 'transparent url("https://faeces.com.br/wp-content/uploads/2018/08/money-site-x-pbn-fundo.jpg")'
+}
+</script>
+</body>
+</html>
